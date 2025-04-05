@@ -11,7 +11,7 @@
   "keywords": [],
   "author": "Staryuu",
   "license": "ISC",
-  "description": "",
+  "description": "Aplikasi Electron js untuk mendeteksi  Web Server di jaringan lokal . ",
   "config": {
     "forge": {
       "makers": [
