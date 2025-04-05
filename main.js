@@ -1,4 +1,5 @@
-const { app, BrowserWindow } = require('electron');
+// main.js
+const { app, BrowserWindow, dialog } = require('electron');
 const os = require('os');
 const net = require('net');
 const path = require('path');
@@ -45,7 +46,7 @@ function checkPortOpen(ip, port, timeout = 1000) {
   });
 }
 
-async function scanForServer(ports = [8000, 8080, 3000, 5000]) {
+async function scanForLaravel(ports) {
   const ips = getLocalIPs();
   const checks = [];
 
@@ -56,7 +57,30 @@ async function scanForServer(ports = [8000, 8080, 3000, 5000]) {
   }
 
   const results = await Promise.all(checks);
-  return results.filter(Boolean); // filter out null
+  return results.filter(Boolean);
+}
+
+async function promptForPorts(win) {
+  const result = await dialog.showMessageBox(win, {
+    type: 'question',
+    buttons: ['Scan Semua', '8000', '8080', '3000', '5000'],
+    title: 'Pilih Port',
+    message: 'Pilih port yang ingin dipindai:',
+    cancelId: 0,
+  });
+
+  switch (result.response) {
+    case 1:
+      return [8000];
+    case 2:
+      return [8080];
+    case 3:
+      return [3000];
+    case 4:
+      return [5000];
+    default:
+      return [8000, 8080, 3000, 5000];
+  }
 }
 
 async function createWindow() {
@@ -71,11 +95,12 @@ async function createWindow() {
 
   await win.loadFile('loading.html');
 
-  const found = await scanForServer();
+  const portsToScan = await promptForPorts(win);
+  const found = await scanForLaravel(portsToScan);
 
   if (found.length > 0) {
     const { ip, port } = found[0];
-    win.webContents.send('server-found', `${ip}:${port}`);
+    win.webContents.send('laravel-found', `${ip}:${port}`);
 
     setTimeout(() => {
       win.loadURL(`http://${ip}:${port}`);
