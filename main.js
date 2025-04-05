@@ -103,10 +103,12 @@ async function promptForPorts(win) {
         height: 300,
         parent: win,
         modal: true,
+        autoHideMenuBar: true,
         webPreferences: {
           preload: path.join(__dirname, 'preload.js'),
           contextIsolation: true,
           nodeIntegration: false,
+          devTools: false
         },
       });
 
