@@ -13,11 +13,11 @@
   </div>
 
   <script>
-    window.electronAPI.onServerFound((event, ip) => {
+    window.electronAPI.onListFound((data) => {
       Swal.fire({
         icon: 'success',
         title: 'Web Server Found!',
-        text: `Connected to ${ip}`,
+        text: `Found ${data.length} server(s)`,
         timer: 2500,
         showConfirmButton: false
       });
