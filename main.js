@@ -87,10 +87,19 @@ async function createWindow() {
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
+    fullscreen: false,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
+      devTools: false
     },
+  });
+
+  win.webContents.on('before-input-event', (event, input) => {
+    if ((input.control || input.meta) && ['i', 'j', 'k'].includes(input.key.toLowerCase())) {
+      event.preventDefault();
+    }
   });
 
   await win.loadFile('loading.html');
@@ -100,7 +109,7 @@ async function createWindow() {
 
   if (found.length > 0) {
     const { ip, port } = found[0];
-    win.webContents.send('laravel-found', `${ip}:${port}`);
+    win.webContents.send('web-server-found', `${ip}:${port}`);
 
     setTimeout(() => {
       win.loadURL(`http://${ip}:${port}`);

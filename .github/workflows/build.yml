@@ -1,8 +1,9 @@
-name: Build Electron App
+name: Build and Release Electron App
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*'  # Hanya saat push tag seperti v1.0.0
   workflow_dispatch:
 
 jobs:
@@ -27,8 +28,28 @@ jobs:
       - name: Build the app
         run: npm run make
 
-      - name: Upload build files
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-${{ runner.os }}
           path: out/make/
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          files: ./artifacts/**/*
+
