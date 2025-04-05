@@ -6,11 +6,15 @@
 
 ## 🎯 Fitur Utama
 
-- 🔍 Otomatis memindai IP lokal dan port Web Server (8000, 8080, 3000, dll).
-- 📡 Menampilkan animasi loading saat scanning.
-- 🎉 SweetAlert untuk notifikasi saat Web Server ditemukan.
-- 📂 Menampilkan halaman "Not Found" jika Web Server tidak terdeteksi.
-- 💻 Build untuk Windows, Linux, dan MacOS (via GitHub Actions).
+- 🔍 Otomatis memindai IP lokal dan port Web Server (8000, 8080, 3000, 5000)
+- 🎯 Mendukung input port kustom (1-65535)
+- 📡 Menampilkan animasi loading saat scanning
+- 🎨 Antarmuka modern dengan mode gelap
+- 🔄 Tombol "Scan Ulang" untuk memperbarui daftar server
+- 📋 Menampilkan daftar server yang ditemukan dengan status online
+- 🎉 SweetAlert untuk notifikasi saat Web Server ditemukan
+- 📂 Menampilkan halaman "Not Found" jika Web Server tidak terdeteksi
+- 💻 Build untuk Windows, Linux, dan MacOS (via GitHub Actions)
 
 ---
 

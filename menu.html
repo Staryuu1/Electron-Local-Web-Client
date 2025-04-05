@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Daftar Web Server</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
+  <!-- Header Section -->
+  <div class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 fixed top-0 left-0 right-0 z-10">
+    <div class="container mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <i class="fas fa-server text-blue-400 text-2xl"></i>
+          <h1 class="text-2xl font-bold">Web Server Manager</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <span class="text-sm text-gray-400" id="server-count"></span>
+          <button id="rescan-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2">
+            <i class="fas fa-radar"></i>
+            <span>Scan Ulang</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-6 pt-24 pb-8">
+    <!-- Server Grid -->
+    <div id="server-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+    <!-- No Servers Found State -->
+    <div id="no-servers" class="hidden">
+      <div class="text-center py-16">
+        <i class="fas fa-search text-6xl text-gray-600 mb-4"></i>
+        <p class="text-xl text-gray-400">Tidak ada server yang ditemukan</p>
+        <button id="rescan-btn-empty" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-200">
+          Scan Ulang
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    console.log('Menu page loaded');
+
+    // Fungsi untuk menampilkan loading state
+    function showLoading() {
+      const container = document.getElementById('server-list');
+      const noServers = document.getElementById('no-servers');
+      const serverCount = document.getElementById('server-count');
+      
+      container.innerHTML = `
+        <div class="col-span-full flex items-center justify-center py-16">
+          <div class="text-center">
+            <div class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin mb-4 mx-auto"></div>
+            <p class="text-gray-400">Memindai server...</p>
+          </div>
+        </div>
+      `;
+      container.classList.remove('hidden');
+      noServers.classList.add('hidden');
+      serverCount.textContent = 'Memindai...';
+    }
+
+    // Fungsi untuk melakukan scan ulang
+    function rescan() {
+      showLoading();
+      window.electronAPI.rescanServers();
+    }
+
+    // Event listener untuk tombol scan ulang
+    document.getElementById('rescan-btn').addEventListener('click', rescan);
+    document.getElementById('rescan-btn-empty').addEventListener('click', rescan);
+
+    window.electronAPI.onListFound((list) => {
+      console.log('Received server list:', list);
+      const container = document.getElementById('server-list');
+      const noServers = document.getElementById('no-servers');
+      const serverCount = document.getElementById('server-count');
+      container.innerHTML = '';
+      
+      if (!list || !list.length) {
+        container.classList.add('hidden');
+        noServers.classList.remove('hidden');
+        serverCount.textContent = 'Tidak ada server';
+        return;
+      }
+
+      container.classList.remove('hidden');
+      noServers.classList.add('hidden');
+      serverCount.textContent = `${list.length} server ditemukan`;
+
+      list.forEach(({ ip, port, title }, index) => {
+        console.log('Creating card for:', { ip, port, title });
+        const card = document.createElement('div');
+        card.className = 'bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-700/50 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 hover:shadow-xl animate-fade-in';
+        card.style.animationDelay = `${index * 100}ms`;
+        card.innerHTML = `
+          <div class="flex items-start justify-between mb-4">
+            <div class="flex-1">
+              <h3 class="text-xl font-semibold text-white mb-1 truncate">${title || 'Untitled Server'}</h3>
+              <p class="text-gray-400 flex items-center">
+                <i class="fas fa-network-wired mr-2"></i>
+                ${ip}:${port}
+              </p>
+            </div>
+            <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full flex items-center">
+              <i class="fas fa-circle text-[8px] mr-1"></i>
+              Online
+            </span>
+          </div>
+          <div class="flex justify-end">
+            <button class="text-blue-400 hover:text-blue-300 transition-colors">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        `;
+        
+       
+        card.addEventListener('mouseenter', () => {
+          card.querySelector('.fa-arrow-right').classList.add('animate-bounce-x');
+        });
+        card.addEventListener('mouseleave', () => {
+          card.querySelector('.fa-arrow-right').classList.remove('animate-bounce-x');
+        });
+        
+        card.addEventListener('click', () => {
+          console.log('Clicking server:', `${ip}:${port}`);
+          window.electronAPI.openServer(`${ip}:${port}`);
+        });
+        container.appendChild(card);
+      });
+    });
+
+   
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes bounce-x {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(3px); }
+      }
+      @keyframes fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-bounce-x {
+        animation: bounce-x 0.5s infinite;
+      }
+      .animate-fade-in {
+        opacity: 0;
+        animation: fade-in 0.5s ease-out forwards;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
