@@ -6,7 +6,7 @@
 
 ## 🎯 Fitur Utama
 
-- 🔍 Otomatis memindai IP lokal dan port Laravel (8000, 8080, 3000, dll).
+- 🔍 Otomatis memindai IP lokal dan port Web Server (8000, 8080, 3000, dll).
 - 📡 Menampilkan animasi loading saat scanning.
 - 🎉 SweetAlert untuk notifikasi saat Web Server ditemukan.
 - 📂 Menampilkan halaman "Not Found" jika Web Server tidak terdeteksi.
