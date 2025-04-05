@@ -30,11 +30,5 @@
 
 ## 🤝 Kontribusi
 
-Kami sangat terbuka terhadap kontribusi!
 
-Jika kamu ingin menambahkan fitur, memperbaiki bug, atau meningkatkan performa aplikasi ini, silakan ikuti langkah berikut:
-
-1. **Fork** repository ini.
-2. **Clone** hasil fork kamu:
-   ```bash
-   git clone https://github.com/username-kamu/Electron-Local-Web-Client.git
+Jika Anda ingin berkontribusi, silakan fork repository ini dan buat pull request dengan perubahan Anda.
