@@ -25,8 +25,8 @@
 1. Kunjungi halaman [Releases](https://github.com/Staryuu1/Electron-Local-Web-Client/releases).
 2. Pilih versi terbaru.
 3. Unduh file sesuai sistem operasi kamu:
-   - `.exe` untuk **Windows**
-   - `.deb` atau `.AppImage` untuk **Linux**
+   - `.msi` untuk **Windows**
+   - `.deb` untuk **Linux**
    - `.dmg` untuk **macOS**
 4. Jalankan aplikasi tanpa instalasi tambahan.
 
