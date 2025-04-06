@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6 text-gray-800">
+  <h1 class="text-2xl font-bold mb-4">Pengaturan Aplikasi</h1>
+  <form id="settings-form" class="space-y-4">
+    <div>
+      <label class="block">Timeout Pemindaian (ms)</label>
+      <input type="number" id="scanTimeout" class="w-full border rounded p-2" required />
+    </div>
+    <div>
+      <label class="block">Rentang IP untuk Dipindai (1 - 254)</label>
+      <input type="number" id="ipScanRange" min="1" max="254" class="w-full border rounded p-2" required />
+    </div>
+    <div>
+      <label class="block">Port Default (pisahkan dengan koma)</label>
+      <input type="text" id="defaultPorts" class="w-full border rounded p-2" required />
+    </div>
+    <div class="flex items-center">
+      <input type="checkbox" id="blockUnsafePorts" class="mr-2">
+      <label for="blockUnsafePorts">Blokir Port Tidak Aman</label>
+    </div>
+    <div class="flex items-center">
+      <input type="checkbox" id="autoOpenIfSingleResult" class="mr-2">
+      <label for="autoOpenIfSingleResult">Otomatis Buka Jika Hanya 1 Server Ditemukan</label>
+    </div>
+    <div class="flex items-center">
+      <input type="checkbox" id="showServerTitles" class="mr-2">
+      <label for="showServerTitles">Tampilkan Judul Server</label>
+    </div>
+    <div class="mt-4">
+      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simpan</button>
+    </div>
+  </form>
+
+  <script>
+    window.electronAPI.loadSettings().then(settings => {
+      document.getElementById('scanTimeout').value = settings.scanTimeout;
+      document.getElementById('ipScanRange').value = settings.ipScanRange;
+      document.getElementById('defaultPorts').value = settings.defaultPorts.join(', ');
+      document.getElementById('blockUnsafePorts').checked = settings.blockUnsafePorts;
+      document.getElementById('autoOpenIfSingleResult').checked = settings.autoOpenIfSingleResult;
+      document.getElementById('showServerTitles').checked = settings.showServerTitles;
+    });
+
+    document.getElementById('settings-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const settings = {
+        scanTimeout: parseInt(document.getElementById('scanTimeout').value),
+        ipScanRange: parseInt(document.getElementById('ipScanRange').value),
+        defaultPorts: document.getElementById('defaultPorts').value.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p)),
+        blockUnsafePorts: document.getElementById('blockUnsafePorts').checked,
+        autoOpenIfSingleResult: document.getElementById('autoOpenIfSingleResult').checked,
+        showServerTitles: document.getElementById('showServerTitles').checked
+      };
+      window.electronAPI.saveSettings(settings);
+      window.close();
+    });
+  </script>
+</body>
+</html>

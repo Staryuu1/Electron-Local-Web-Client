@@ -1,8 +1,10 @@
+// === main.js ===
 const { app, BrowserWindow, dialog, ipcMain } = require('electron');
 const os = require('os');
 const net = require('net');
 const path = require('path');
 const http = require('http');
+const fs = require('fs');
 
 const unsafePorts = [
   1, 7, 9, 11, 13, 15, 17, 19, 20, 21, 22, 23, 25, 37, 42, 43, 53,
@@ -12,44 +14,80 @@ const unsafePorts = [
   2049, 3659, 4045, 6000, 6665, 6666, 6667, 6668, 6669, 6697
 ];
 
+const SETTINGS_PATH = path.join(app.getPath('userData'), 'settings.json');
+
+let settings = {
+  scanTimeout: 500,
+  ipScanRange: 254,
+  defaultPorts: [8000, 8080, 3000, 5000],
+  blockUnsafePorts: true,
+  autoOpenIfSingleResult: false,
+  showServerTitles: true
+};
+
+try {
+  if (fs.existsSync(SETTINGS_PATH)) {
+    settings = JSON.parse(fs.readFileSync(SETTINGS_PATH));
+  }
+} catch (e) {
+  console.error('Gagal membaca settings:', e);
+}
+
+ipcMain.handle('load-settings', () => settings);
+ipcMain.on('save-settings', (_e, newSettings) => {
+  settings = newSettings;
+  fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings));
+});
+
+ipcMain.on('open-settings', () => {
+  const settingsWin = new BrowserWindow({
+    width: 500,
+    height: 650,
+    resizable: false,
+    autoHideMenuBar: true,
+    modal: true,
+    parent: BrowserWindow.getFocusedWindow(),
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+  settingsWin.loadFile('settings.html');
+});
+
 function getLocalIPs() {
   const interfaces = os.networkInterfaces();
   const ips = [];
-
   for (const name of Object.keys(interfaces)) {
     for (const net of interfaces[name]) {
       if (net.family === 'IPv4' && !net.internal) {
         const subnet = net.address.split('.').slice(0, 3).join('.');
-        for (let i = 1; i <= 254; i++) {
+        for (let i = 1; i <= settings.ipScanRange; i++) {
           ips.push(`${subnet}.${i}`);
         }
       }
     }
   }
-
   return ips;
 }
 
-function checkPortOpen(ip, port, timeout = 500) {
+function checkPortOpen(ip, port, timeout = settings.scanTimeout) {
   return new Promise((resolve) => {
     const socket = new net.Socket();
     socket.setTimeout(timeout);
-
     socket.once('connect', () => {
       socket.destroy();
       resolve({ ip, port });
     });
-
     socket.once('timeout', () => {
       socket.destroy();
       resolve(null);
     });
-
     socket.once('error', () => {
       socket.destroy();
       resolve(null);
     });
-
     socket.connect(port, ip);
   });
 }
@@ -73,18 +111,16 @@ function fetchTitle(ip, port) {
 async function scanForServers(ports) {
   const ips = getLocalIPs();
   const checks = [];
-
   for (const ip of ips) {
     for (const port of ports) {
+      if (settings.blockUnsafePorts && unsafePorts.includes(port)) continue;
       checks.push(checkPortOpen(ip, port));
     }
   }
-
   const openPorts = (await Promise.all(checks)).filter(Boolean);
+  if (!settings.showServerTitles) return openPorts;
   const titleChecks = openPorts.map(({ ip, port }) => fetchTitle(ip, port));
-  const resultsWithTitle = (await Promise.all(titleChecks)).filter(Boolean);
-
-  return resultsWithTitle;
+  return (await Promise.all(titleChecks)).filter(Boolean);
 }
 
 async function promptForPorts(win) {
@@ -121,11 +157,11 @@ async function promptForPorts(win) {
 
       ipcMain.once('cancel-custom-port', () => {
         customPortWin.close();
-        resolve([8000, 8080, 3000, 5000]);
+        resolve(settings.defaultPorts);
       });
 
       customPortWin.on('closed', () => {
-        resolve([8000, 8080, 3000, 5000]);
+        resolve(settings.defaultPorts);
       });
     });
   }
@@ -135,7 +171,7 @@ async function promptForPorts(win) {
     case 2: return [8080];
     case 3: return [3000];
     case 4: return [5000];
-    default: return [8000, 8080, 3000, 5000];
+    default: return settings.defaultPorts;
   }
 }
 
@@ -158,15 +194,19 @@ async function createWindow() {
   const foundList = await scanForServers(portsToScan);
 
   const hasUnsafe = foundList.some(({ port }) => unsafePorts.includes(port));
-  if (hasUnsafe) {
+  if (hasUnsafe && settings.blockUnsafePorts) {
     return await win.loadFile('unsafe.html');
   }
 
   if (foundList.length > 0) {
-    await win.loadFile('menu.html');
-    setTimeout(() => {
-      win.webContents.send('list-found', foundList);
-    }, 500);
+    if (foundList.length === 1 && settings.autoOpenIfSingleResult) {
+      win.loadURL(`http://${foundList[0].ip}:${foundList[0].port}`);
+    } else {
+      await win.loadFile('menu.html');
+      setTimeout(() => {
+        win.webContents.send('list-found', foundList);
+      }, 500);
+    }
   } else {
     win.loadFile('notfound.html');
   }
@@ -174,27 +214,23 @@ async function createWindow() {
 
 ipcMain.on('open-server', (event, url) => {
   const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    win.loadURL(`http://${url}`);
-  }
+  if (win) win.loadURL(`http://${url}`);
 });
 
-ipcMain.on('rescan-servers', async (event) => {
+ipcMain.on('rescan-servers', async () => {
   const win = BrowserWindow.getFocusedWindow();
-  if (win) {
-    const portsToScan = await promptForPorts(win);
-    const foundList = await scanForServers(portsToScan);
-
-    const hasUnsafe = foundList.some(({ port }) => unsafePorts.includes(port));
-    if (hasUnsafe) {
-      return win.loadFile('unsafe.html');
-    }
-
-    win.webContents.send('list-found', foundList);
+  if (!win) return;
+  const portsToScan = await promptForPorts(win);
+  const foundList = await scanForServers(portsToScan);
+  const hasUnsafe = foundList.some(({ port }) => unsafePorts.includes(port));
+  if (hasUnsafe && settings.blockUnsafePorts) {
+    return win.loadFile('unsafe.html');
   }
+  win.webContents.send('list-found', foundList);
 });
 
 app.whenReady().then(createWindow);
+
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });

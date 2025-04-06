@@ -15,7 +15,7 @@
 - 🎉 SweetAlert untuk notifikasi saat Web Server ditemukan
 - 📂 Menampilkan halaman "Not Found" jika Web Server tidak terdeteksi
 - 💻 Build untuk Windows, Linux, dan MacOS (via GitHub Actions)
-
+- ⚙️ Pengaturan untuk kustomisasi pemindaian
 ---
 
 ## 📦 Cara Install & Jalankan
