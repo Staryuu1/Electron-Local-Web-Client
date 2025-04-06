@@ -25,12 +25,7 @@
         },
         {
           "name": "@electron-forge/maker-zip",
-          "platforms": ["darwin"]
-        },
-        {
-          "name": "@electron-forge/maker-squirrel",
-          "config": {},
-          "platforms": ["win32"]
+          "platforms": ["win32", "darwin"]
         }
       ]
     }
