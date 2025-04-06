@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   rescanServers: () => ipcRenderer.send('rescan-servers'),
   submitCustomPort: (port) => ipcRenderer.send('submit-custom-port', port),
   cancelCustomPort: () => ipcRenderer.send('cancel-custom-port'),
+  openSettings: () => ipcRenderer.send('open-settings'),
+  loadSettings: () => ipcRenderer.invoke('load-settings'),
+  saveSettings: (settings) => ipcRenderer.send('save-settings', settings)
 });
