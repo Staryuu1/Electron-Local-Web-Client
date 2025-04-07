@@ -7,7 +7,6 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
-  <!-- Header Section -->
   <div class="bg-gray-800/50 backdrop-blur-sm border-b border-gray-700 fixed top-0 left-0 right-0 z-10">
     <div class="container mx-auto px-6 py-4">
       <div class="flex items-center justify-between">
@@ -32,12 +31,8 @@
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="container mx-auto px-6 pt-24 pb-8">
-    <!-- Server Grid -->
     <div id="server-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
-    <!-- No Servers Found State -->
     <div id="no-servers" class="hidden">
       <div class="text-center py-16">
         <i class="fas fa-search text-6xl text-gray-600 mb-4"></i>
@@ -50,9 +45,6 @@
   </div>
 
   <script>
-    console.log('Menu page loaded');
-
-    // Fungsi untuk menampilkan loading state
     function showLoading() {
       const container = document.getElementById('server-list');
       const noServers = document.getElementById('no-servers');
@@ -71,18 +63,34 @@
       serverCount.textContent = 'Memindai...';
     }
 
-    // Fungsi untuk melakukan scan ulang
     function rescan() {
       showLoading();
       window.electronAPI.rescanServers();
     }
 
-    // Event listener untuk tombol scan ulang
     document.getElementById('rescan-btn').addEventListener('click', rescan);
     document.getElementById('rescan-btn-empty').addEventListener('click', rescan);
 
+    function checkStatus(ip, port, badgeEl) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      fetch(`http://${ip}:${port}`, { signal: controller.signal })
+        .then(res => {
+          if (res.ok) {
+            badgeEl.innerHTML = `<i class="fas fa-circle text-[8px] mr-1"></i> Online`;
+            badgeEl.className = 'bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full flex items-center';
+          } else {
+            throw new Error();
+          }
+        })
+        .catch(() => {
+          badgeEl.innerHTML = `<i class="fas fa-circle text-[8px] mr-1"></i> Offline`;
+          badgeEl.className = 'bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded-full flex items-center';
+        })
+        .finally(() => clearTimeout(timeoutId));
+    }
+
     window.electronAPI.onListFound((list) => {
-      console.log('Received server list:', list);
       const container = document.getElementById('server-list');
       const noServers = document.getElementById('no-servers');
       const serverCount = document.getElementById('server-count');
@@ -100,7 +108,7 @@
       serverCount.textContent = `${list.length} server ditemukan`;
 
       list.forEach(({ ip, port, title }, index) => {
-        console.log('Creating card for:', { ip, port, title });
+        const statusId = `status-${ip.replace(/\./g, '-')}-${port}`;
         const card = document.createElement('div');
         card.className = 'bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-700/50 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 hover:shadow-xl animate-fade-in';
         card.style.animationDelay = `${index * 100}ms`;
@@ -113,9 +121,9 @@
                 ${ip}:${port}
               </p>
             </div>
-            <span class="bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full flex items-center">
+            <span id="${statusId}" class="bg-gray-500/20 text-gray-400 text-xs px-2 py-1 rounded-full flex items-center">
               <i class="fas fa-circle text-[8px] mr-1"></i>
-              Online
+              Mengecek...
             </span>
           </div>
           <div class="flex justify-end">
@@ -124,24 +132,23 @@
             </button>
           </div>
         `;
-        
-       
+        card.addEventListener('click', () => {
+          window.electronAPI.openServer(`${ip}:${port}`);
+        });
         card.addEventListener('mouseenter', () => {
           card.querySelector('.fa-arrow-right').classList.add('animate-bounce-x');
         });
         card.addEventListener('mouseleave', () => {
           card.querySelector('.fa-arrow-right').classList.remove('animate-bounce-x');
         });
-        
-        card.addEventListener('click', () => {
-          console.log('Clicking server:', `${ip}:${port}`);
-          window.electronAPI.openServer(`${ip}:${port}`);
-        });
         container.appendChild(card);
+
+        const badgeEl = card.querySelector(`#${statusId}`);
+        checkStatus(ip, port, badgeEl);
+        setInterval(() => checkStatus(ip, port, badgeEl), 10000);
       });
     });
 
-   
     const style = document.createElement('style');
     style.textContent = `
       @keyframes bounce-x {
