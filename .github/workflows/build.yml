@@ -51,10 +51,10 @@ jobs:
         with:
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-        files: |
-          ./artifacts/**/*.msi
-          ./artifacts/**/*.exe
-          ./artifacts/**/*.dmg
-          ./artifacts/**/*.deb
-          ./artifacts/**/*.rpm
+          files: |
+            ./artifacts/**/*.msi
+            ./artifacts/**/*.exe
+            ./artifacts/**/*.dmg
+            ./artifacts/**/*.deb
+            ./artifacts/**/*.rpm
 
