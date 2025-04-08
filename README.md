@@ -16,7 +16,12 @@
 - 📂 Menampilkan halaman "Not Found" jika Web Server tidak terdeteksi
 - 💻 Build untuk Windows, Linux, dan MacOS (via GitHub Actions)
 - ⚙️ Pengaturan untuk kustomisasi pemindaian
+- 🖌️ Kustomisasi Theme (Dark/Light)
 ---
+
+## Todo
+- [ ] Multipe Langguage support (english/indonesia)
+
 
 ## 📦 Cara Install & Jalankan
 

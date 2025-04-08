@@ -33,6 +33,21 @@
       <input type="checkbox" id="showServerTitles" class="mr-2">
       <label for="showServerTitles">Tampilkan Judul Server</label>
     </div>
+    <!-- <div>
+      <label class="block">Bahasa</label>
+      <select id="language" class="w-full border rounded p-2">
+        <option value="English">English</option>
+        <option value="Indonesia">Indonesia</option>
+      </select>
+    </div>  :TODO:--> 
+    
+    <div>
+      <label class="block">Tema</label>
+      <select id="theme" class="w-full border rounded p-2">
+        <option value="Light">Light</option>
+        <option value="Dark">Dark</option>
+      </select>
+    </div>
     <div class="mt-4">
       <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Simpan</button>
     </div>
@@ -46,6 +61,8 @@
       document.getElementById('blockUnsafePorts').checked = settings.blockUnsafePorts;
       document.getElementById('autoOpenIfSingleResult').checked = settings.autoOpenIfSingleResult;
       document.getElementById('showServerTitles').checked = settings.showServerTitles;
+      // document.getElementById('language').value = settings.language; :TODO:
+      document.getElementById('theme').value = settings.theme;
     });
 
     document.getElementById('settings-form').addEventListener('submit', (e) => {
@@ -56,7 +73,9 @@
         defaultPorts: document.getElementById('defaultPorts').value.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p)),
         blockUnsafePorts: document.getElementById('blockUnsafePorts').checked,
         autoOpenIfSingleResult: document.getElementById('autoOpenIfSingleResult').checked,
-        showServerTitles: document.getElementById('showServerTitles').checked
+        showServerTitles: document.getElementById('showServerTitles').checked,
+        // language: document.getElementById('language').value, :TODO:
+        theme: document.getElementById('theme').value
       };
       window.electronAPI.saveSettings(settings);
       window.close();

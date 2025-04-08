@@ -22,7 +22,9 @@ let settings = {
   defaultPorts: [8000, 8080, 3000, 5000],
   blockUnsafePorts: true,
   autoOpenIfSingleResult: false,
-  showServerTitles: true
+  showServerTitles: true,
+  // language: 'Indonesia', :TODO:
+  theme: 'Dark'
 };
 
 try {
@@ -31,6 +33,10 @@ try {
   }
 } catch (e) {
   console.error('Gagal membaca settings:', e);
+}
+function getLocalizedPath(fileName) {
+  const theme = settings.theme || 'Dark';
+  return path.join(__dirname, 'views', theme, fileName);
 }
 
 ipcMain.handle('load-settings', () => settings);
@@ -53,7 +59,7 @@ ipcMain.on('open-settings', () => {
       nodeIntegration: false,
     },
   });
-  settingsWin.loadFile('settings.html');
+  settingsWin.loadFile(getLocalizedPath('settings.html'));
 });
 
 function getLocalIPs() {
@@ -148,7 +154,7 @@ async function promptForPorts(win) {
         },
       });
 
-      customPortWin.loadFile('custom-port.html');
+      customPortWin.loadFile(getLocalizedPath('custom-port.html'));
 
       ipcMain.once('submit-custom-port', (event, port) => {
         customPortWin.close();
@@ -188,27 +194,28 @@ async function createWindow() {
     },
   });
 
-  await win.loadFile('loading.html');
+  await win.loadFile(getLocalizedPath('loading.html'));
 
   const portsToScan = await promptForPorts(win);
   const foundList = await scanForServers(portsToScan);
 
-  const hasUnsafe = foundList.some(({ port }) => unsafePorts.includes(port));
+  const hasUnsafe = portsToScan.some(port => unsafePorts.includes(port));
+
   if (hasUnsafe && settings.blockUnsafePorts) {
-    return await win.loadFile('unsafe.html');
+    return await win.loadFile(getLocalizedPath('unsafe.html'));
   }
 
   if (foundList.length > 0) {
     if (foundList.length === 1 && settings.autoOpenIfSingleResult) {
       win.loadURL(`http://${foundList[0].ip}:${foundList[0].port}`);
     } else {
-      await win.loadFile('menu.html');
+      await win.loadFile(getLocalizedPath('menu.html'));
       setTimeout(() => {
         win.webContents.send('list-found', foundList);
       }, 500);
     }
   } else {
-    win.loadFile('notfound.html');
+    win.loadFile(getLocalizedPath('notfound.html'));
   }
 }
 
@@ -222,9 +229,9 @@ ipcMain.on('rescan-servers', async () => {
   if (!win) return;
   const portsToScan = await promptForPorts(win);
   const foundList = await scanForServers(portsToScan);
-  const hasUnsafe = foundList.some(({ port }) => unsafePorts.includes(port));
+  const hasUnsafe = portsToScan.some(port => unsafePorts.includes(port));
   if (hasUnsafe && settings.blockUnsafePorts) {
-    return win.loadFile('unsafe.html');
+    return win.loadFile(getLocalizedPath('unsafe.html'));
   }
   win.webContents.send('list-found', foundList);
 });
