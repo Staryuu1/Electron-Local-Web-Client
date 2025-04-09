@@ -5,15 +5,22 @@
   <title>Custom Port</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex items-center justify-center p-8">
-  <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-8 w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6">Custom Port</h2>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white h-screen overflow-hidden flex items-center justify-center p-4">
+  <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 w-full max-w-sm">
+    <h2 class="text-2xl font-bold mb-4">Custom Port</h2>
     <form id="portForm" class="space-y-4">
       <div>
         <label for="port" class="block text-sm font-medium text-gray-300 mb-2">Masukkan nomor port (1-65535):</label>
-        <input type="number" id="port" name="port" min="1" max="65535" value="8000"
-          class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          required>
+        <input
+          type="number"
+          id="port"
+          name="port"
+          min="1"
+          max="65535"
+          value="8000"
+          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          required
+        >
       </div>
       <div class="flex space-x-3">
         <button type="submit"
@@ -38,4 +45,4 @@
     });
   </script>
 </body>
-</html> 
+</html>

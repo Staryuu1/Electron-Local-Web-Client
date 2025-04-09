@@ -142,7 +142,7 @@ async function promptForPorts(win) {
     return new Promise((resolve) => {
       const customPortWin = new BrowserWindow({
         width: 400,
-        height: 300,
+        height: 320,
         parent: win,
         modal: true,
         autoHideMenuBar: true,
@@ -186,11 +186,12 @@ async function createWindow() {
     width: 1000,
     height: 700,
     fullscreen: false,
-    autoHideMenuBar: false,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      devTools : false,
     },
   });
 
