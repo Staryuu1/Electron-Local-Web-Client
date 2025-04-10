@@ -2,26 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Scanning for Web Server</title>
+  <title translate="loading.title">Scanning for Web Server</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-900 text-white flex flex-col justify-center items-center h-screen">
   <div class="flex flex-col items-center">
     <div class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin mb-6"></div>
-    <h2 class="text-xl font-semibold">Scanning for Web Server in local network...</h2>
+    <h2 class="text-xl font-semibold" translate="loading.scanning">Scanning for Web Server in local network...</h2>
   </div>
 
   <script>
-    window.electronAPI.onListFound((data) => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Web Server Found!',
-        text: `Found ${data.length} server(s)`,
-        timer: 2500,
-        showConfirmButton: false
-      });
-    });
+    (async () => {
+      const elements = document.querySelectorAll('[translate]');
+      for (const el of elements) {
+        const key = el.getAttribute('translate');
+        const translated = await window.electronAPI.t(key);
+        if (el.tagName.toLowerCase() === 'title') {
+          document.title = translated;
+        } else {
+          el.innerText = translated;
+        }
+      }
+    })();
   </script>
 </body>
 </html>

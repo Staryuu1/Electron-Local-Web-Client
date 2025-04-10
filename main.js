@@ -6,6 +6,8 @@ const path = require('path');
 const http = require('http');
 const fs = require('fs');
 
+const {loadLanguage, t, setLanguage }= require('./language');
+
 const unsafePorts = [
   1, 7, 9, 11, 13, 15, 17, 19, 20, 21, 22, 23, 25, 37, 42, 43, 53,
   77, 79, 87, 95, 101, 102, 103, 104, 109, 110, 111, 113, 115, 117,
@@ -23,9 +25,10 @@ let settings = {
   blockUnsafePorts: true,
   autoOpenIfSingleResult: false,
   showServerTitles: true,
-  // language: 'Indonesia', :TODO:
+  language: 'Indonesia', 
   theme: 'Dark'
 };
+loadLanguage(settings.language);
 
 try {
   if (fs.existsSync(SETTINGS_PATH)) {
@@ -42,6 +45,7 @@ function getLocalizedPath(fileName) {
 ipcMain.handle('load-settings', () => settings);
 ipcMain.on('save-settings', (_e, newSettings) => {
   settings = newSettings;
+  setLanguage(settings.language);
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings));
 });
 
@@ -61,6 +65,11 @@ ipcMain.on('open-settings', () => {
   });
   settingsWin.loadFile(getLocalizedPath('settings.html'));
 });
+
+ipcMain.handle('translate', (_event, key) => {
+  return t(key);
+});
+
 
 function getLocalIPs() {
   const interfaces = os.networkInterfaces();
@@ -132,9 +141,9 @@ async function scanForServers(ports) {
 async function promptForPorts(win) {
   const result = await dialog.showMessageBox(win, {
     type: 'question',
-    buttons: ['Scan Semua', '8000', '8080', '3000', '5000', 'Custom Port'],
-    title: 'Pilih Port',
-    message: 'Pilih port yang ingin dipindai:',
+    buttons: [t('portDialog.buttons.scanAll'), '8000', '8080', '3000', '5000', t('portDialog.buttons.customPort')],
+    title: t('portDialog.title'),
+    message: t('portDialog.message'),
     cancelId: 0,
   });
 
@@ -186,12 +195,12 @@ async function createWindow() {
     width: 1000,
     height: 700,
     fullscreen: false,
-    autoHideMenuBar: true,
+    autoHideMenuBar: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
-      devTools : false,
+      devTools : true,
     },
   });
 
@@ -236,6 +245,7 @@ ipcMain.on('rescan-servers', async () => {
   }
   win.webContents.send('list-found', foundList);
 });
+
 
 app.whenReady().then(createWindow);
 

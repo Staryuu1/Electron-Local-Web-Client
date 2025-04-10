@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Custom Port</title>
+  <title translate="portDialog.custom.title">Custom Port</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white h-screen overflow-hidden flex items-center justify-center p-4">
   <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 w-full max-w-sm">
-    <h2 class="text-2xl font-bold mb-4">Custom Port</h2>
+    <h2 class="text-2xl font-bold mb-4" translate="portDialog.custom.title">Custom Port</h2>
     <form id="portForm" class="space-y-4">
       <div>
-        <label for="port" class="block text-sm font-medium text-gray-300 mb-2">Masukkan nomor port (1-65535):</label>
+        <label for="port" class="block text-sm font-medium text-gray-300 mb-2" translate="portDialog.custom.message">Masukkan nomor port (1-65535):</label>
         <input
           type="number"
           id="port"
@@ -24,11 +24,11 @@
       </div>
       <div class="flex space-x-3">
         <button type="submit"
-          class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+          class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors" translate="portDialog.custom.buttons.ok">
           OK
         </button>
         <button type="button" onclick="window.electronAPI.cancelCustomPort()"
-          class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+          class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors" translate="portDialog.custom.buttons.cancel">
           Batal
         </button>
       </div>
@@ -36,6 +36,18 @@
   </div>
 
   <script>
+    (async () => {
+      const elements = document.querySelectorAll('[translate]');
+      for (const el of elements) {
+        const key = el.getAttribute('translate');
+        const translated = await window.electronAPI.t(key);
+        if (el.tagName.toLowerCase() === 'title') {
+          document.title = translated;
+        } else {
+          el.innerText = translated;
+        }
+      }
+    })();
     document.getElementById('portForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const port = parseInt(document.getElementById('port').value);

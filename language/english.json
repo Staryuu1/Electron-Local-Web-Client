@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "Web Server Scanner",
+    "header": "Web Server Manager"
+  },
+  "loading": {
+    "title": "Scanning Web Server",
+    "scanning": "Scanning servers on the local network...",
+    "found": "Servers Found!",
+    "status": "Scanning..."
+  },
+  "menu": {
+    "serverCount": {
+      "none": "No servers",
+      "found": "servers found"
+    },
+    "buttons": {
+      "rescan": "Rescan",
+      "refresh": "Refresh",
+      "tryAgain": "Try Again"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "scanning": "Scanning..."
+    },
+    "noServers": {
+      "title": "No servers found",
+      "message": "No active servers found on the network"
+    },
+    "untitled": "Untitled Server"
+  },
+  "settings": {
+    "title": "Settings",
+    "scanTimeout": "Scan Timeout (ms)",
+    "ipScanRange": "IP Range to Scan (1 - 254)",
+    "defaultPorts": "Default Ports (comma-separated)",
+    "blockUnsafePorts": "Block Unsafe Ports",
+    "autoOpenIfSingleResult": "Auto Open If Only 1 Server Found",
+    "showServerTitles": "Show Server Titles",
+    "language": "Language",
+    "theme": "Theme",
+    "save": "Save"
+  },
+  "portDialog": {
+    "title": "Select Port",
+    "message": "Select the port you want to scan:",
+    "buttons": {
+      "scanAll": "Scan All",
+      "customPort": "Custom Port",
+      "ok": "OK",
+      "cancel": "Cancel"
+    },
+    "custom": {
+      "title": "Custom Port",
+      "message": "Enter port number (1-65535):",
+      "placeholder": "Example: 8000",
+      "buttons": {
+        "ok": "OK",
+        "cancel": "Cancel"
+      }
+    }
+  },
+  "notFound": {
+    "title": "Server Not Found",
+    "message": "Make sure your server is running on the correct port in the same network.",
+    "error": {
+      "title": "No Servers Detected",
+      "message": "Scan finished but no servers were found."
+    }
+  },
+  "unsafe": {
+    "title": "Unsafe Port",
+    "message": "You are trying to scan servers using ports that are not allowed by the system",
+    "sub-message": "Please scan with a different port and restart the application."
+  }
+}

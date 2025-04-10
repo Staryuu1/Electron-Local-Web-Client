@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Daftar Web Server</title>
+  <title translate="app.title">Web Server Scanner</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -12,20 +12,19 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-3">
           <i class="fas fa-server text-blue-400 text-2xl"></i>
-          <h1 class="text-2xl font-bold">Web Server Manager</h1>
+          <h1 class="text-2xl font-bold" translate="app.header">Web Server Manager</h1>
         </div>
         <div class="flex items-center space-x-4">
-          <span class="text-sm text-gray-400" id="server-count"></span>
+          <span class="text-sm text-gray-400" id="server-count" translate="menu.serverCount.none"></span>
           <button id="rescan-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2">
             <i class="fas fa-radar"></i>
-            <span>Scan Ulang</span>
+            <span translate="menu.buttons.rescan">Scan Ulang</span>
           </button>
           <button
             onclick="window.electronAPI.openSettings()"
             class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-          >
-            Pengaturan
-          </button>
+            translate="settings.title"
+          >Pengaturan</button>
         </div>
       </div>
     </div>
@@ -36,8 +35,8 @@
     <div id="no-servers" class="hidden">
       <div class="text-center py-16">
         <i class="fas fa-search text-6xl text-gray-600 mb-4"></i>
-        <p class="text-xl text-gray-400">Tidak ada server yang ditemukan</p>
-        <button id="rescan-btn-empty" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-200">
+        <p class="text-xl text-gray-400" translate="menu.noServers.message">Tidak ada server aktif yang ditemukan di jaringan</p>
+        <button id="rescan-btn-empty" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all duration-200" translate="menu.buttons.rescan">
           Scan Ulang
         </button>
       </div>
@@ -45,85 +44,119 @@
   </div>
 
   <script>
-    function showLoading() {
+    async function t(key, vars = {}) {
+      if (window.electronAPI && typeof window.electronAPI.t === "function") {
+        return await window.electronAPI.t(key, vars);
+      }
+      return key;
+    }
+  
+    async function applyTranslations() {
+      const elements = document.querySelectorAll("[translate]");
+      for (const el of elements) {
+        const key = el.getAttribute("translate");
+        try {
+          const translated = await t(key);
+          if (el.tagName.toLowerCase() === "title") {
+            document.title = translated;
+          } else {
+            el.innerText = translated;
+          }
+        } catch (e) {
+          console.error("Translation error:", key, e);
+        }
+      }
+    }
+  
+    async function showLoading() {
       const container = document.getElementById('server-list');
       const noServers = document.getElementById('no-servers');
       const serverCount = document.getElementById('server-count');
-      
+  
+      const scanningText = await t("loading.scanning");
+  
       container.innerHTML = `
         <div class="col-span-full flex items-center justify-center py-16">
           <div class="text-center">
             <div class="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin mb-4 mx-auto"></div>
-            <p class="text-gray-400">Memindai server...</p>
+            <p class="text-gray-400">${scanningText}</p>
           </div>
         </div>
       `;
       container.classList.remove('hidden');
       noServers.classList.add('hidden');
-      serverCount.textContent = 'Memindai...';
+      serverCount.textContent = scanningText;
     }
-
+  
     function rescan() {
       showLoading();
       window.electronAPI.rescanServers();
     }
-
+  
     document.getElementById('rescan-btn').addEventListener('click', rescan);
     document.getElementById('rescan-btn-empty').addEventListener('click', rescan);
-
-    function checkStatus(ip, port, badgeEl) {
+  
+    async function checkStatus(ip, port, badgeEl) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
-      fetch(`http://${ip}:${port}`, { signal: controller.signal })
-        .then(res => {
-          if (res.ok) {
-            badgeEl.innerHTML = `<i class="fas fa-circle text-[8px] mr-1"></i> Online`;
-            badgeEl.className = 'bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full flex items-center';
-          } else {
-            throw new Error();
-          }
-        })
-        .catch(() => {
-          badgeEl.innerHTML = `<i class="fas fa-circle text-[8px] mr-1"></i> Offline`;
-          badgeEl.className = 'bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded-full flex items-center';
-        })
-        .finally(() => clearTimeout(timeoutId));
+      try {
+        const res = await fetch(`http://${ip}:${port}`, { signal: controller.signal });
+        if (res.ok) {
+          const onlineText = await t("menu.status.online");
+          badgeEl.innerHTML = `<i class="fas fa-circle text-[8px] mr-1"></i> ${onlineText}`;
+          badgeEl.className = 'bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full flex items-center';
+        } else {
+          throw new Error();
+        }
+      } catch {
+        const offlineText = await t("menu.status.offline")
+        badgeEl.innerHTML = `<i class="fas fa-circle text-[8px] mr-1"></i>  ${offlineText}`;
+        badgeEl.className = 'bg-red-500/20 text-red-400 text-xs px-2 py-1 rounded-full flex items-center';
+      } finally {
+        clearTimeout(timeoutId);
+      }
     }
-
-    window.electronAPI.onListFound((list) => {
+  
+    window.electronAPI.onListFound(async (list) => {
       const container = document.getElementById('server-list');
       const noServers = document.getElementById('no-servers');
       const serverCount = document.getElementById('server-count');
       container.innerHTML = '';
-      
+  
       if (!list || !list.length) {
+        const noneText = await t("menu.serverCount.none");
+        const message = await t("menu.noServers.message");
         container.classList.add('hidden');
         noServers.classList.remove('hidden');
-        serverCount.textContent = 'Tidak ada server';
+        serverCount.textContent = noneText;
+        document.querySelector('#no-servers p').innerText = message;
         return;
       }
-
+  
       container.classList.remove('hidden');
       noServers.classList.add('hidden');
-      serverCount.textContent = `${list.length} server ditemukan`;
-
-      list.forEach(({ ip, port, title }, index) => {
+      serverCount.textContent = `${list.length} ${await t("menu.serverCount.found")}`;
+  
+      for (const [index, { ip, port, title }] of list.entries()) {
         const statusId = `status-${ip.replace(/\./g, '-')}-${port}`;
         const card = document.createElement('div');
         card.className = 'bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6 hover:bg-gray-700/50 cursor-pointer transition-all duration-200 transform hover:-translate-y-1 hover:shadow-xl animate-fade-in';
         card.style.animationDelay = `${index * 100}ms`;
+  
+        const cardTitle = title || await t("menu.untitled");
+        const scanningText = await t("menu.status.scanning");
+  
         card.innerHTML = `
           <div class="flex items-start justify-between mb-4">
             <div class="flex-1">
-              <h3 class="text-xl font-semibold text-white mb-1 truncate">${title || `${ip}:${port}`}</h3>
+              <h3 class="text-xl font-semibold text-white mb-1 truncate">${cardTitle}</h3>
               <p class="text-gray-400 flex items-center">
                 <i class="fas fa-network-wired mr-2"></i>
                 ${ip}:${port}
               </p>
             </div>
             <span id="${statusId}" class="bg-gray-500/20 text-gray-400 text-xs px-2 py-1 rounded-full flex items-center">
-              <i class="fas fa-circle text-[8px] mr-1"></i>
-              Mengecek...
+              <i class="fas fa-circle text-[8px] mr-1"></i> ${scanningText}
             </span>
           </div>
           <div class="flex justify-end">
@@ -132,23 +165,26 @@
             </button>
           </div>
         `;
+  
         card.addEventListener('click', () => {
           window.electronAPI.openServer(`${ip}:${port}`);
         });
+  
         card.addEventListener('mouseenter', () => {
           card.querySelector('.fa-arrow-right').classList.add('animate-bounce-x');
         });
         card.addEventListener('mouseleave', () => {
           card.querySelector('.fa-arrow-right').classList.remove('animate-bounce-x');
         });
+  
         container.appendChild(card);
-
+  
         const badgeEl = card.querySelector(`#${statusId}`);
-        checkStatus(ip, port, badgeEl);
+        await checkStatus(ip, port, badgeEl);
         setInterval(() => checkStatus(ip, port, badgeEl), 10000);
-      });
+      }
     });
-
+  
     const style = document.createElement('style');
     style.textContent = `
       @keyframes bounce-x {
@@ -168,6 +204,9 @@
       }
     `;
     document.head.appendChild(style);
+  
+    document.addEventListener("DOMContentLoaded", applyTranslations);
   </script>
+  
 </body>
 </html>

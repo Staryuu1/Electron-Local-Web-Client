@@ -1,0 +1,77 @@
+{
+  "app": {
+    "title": "Web Server Scanner",
+    "header": "Web Server Manager"
+  },
+  "loading": {
+    "title": "Memindai Web Server",
+    "scanning": "Memindai server dalam jaringan lokal...",
+    "found": "Server Ditemukan!",
+    "status": "Memindai..."
+  },
+  "menu": { 
+    "serverCount": {
+      "none": "Tidak ada server",
+      "found": "server ditemukan"
+    },
+    "buttons": {
+      "rescan": "Scan Ulang",
+      "refresh": "Segarkan",
+      "tryAgain": "Coba Lagi"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "scanning": "Memindai..."
+    },
+    "noServers": {
+      "title": "Tidak ada server yang ditemukan",
+      "message": "Tidak ada server aktif yang ditemukan di jaringan"
+    },
+    "untitled": "Server Tanpa Judul"
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "scanTimeout": "Timeout Pemindaian (ms)",
+    "ipScanRange": "Rentang IP untuk Dipindai (1 - 254)",
+    "defaultPorts": "Port Default (pisahkan dengan koma)",
+    "blockUnsafePorts": "Blokir Port Tidak Aman",
+    "autoOpenIfSingleResult": "Otomatis Buka Jika Hanya 1 Server Ditemukan",
+    "showServerTitles": "Tampilkan Judul Server",
+    "language": "Bahasa",
+    "theme": "Tema",
+    "save": "Simpan"
+  },
+  "portDialog": {
+    "title": "Pilih Port",
+    "message": "Pilih port yang ingin dipindai:",
+    "buttons": {
+      "scanAll": "Scan Semua",
+      "customPort": "Port Kustom",
+      "ok": "OK",
+      "cancel": "Batal"
+    },
+    "custom": {
+      "title": "Port Kustom",
+      "message": "Masukkan nomor port (1-65535):",
+      "placeholder": "Contoh: 8000",
+      "buttons": {
+        "ok": "OK",
+        "cancel": "Batal"
+      }
+    }
+  },
+  "notFound": {
+    "title": "Server Tidak Ditemukan",
+    "message": "Pastikan server Anda berjalan di port yang benar dalam jaringan yang sama.",
+    "error": {
+      "title": "Tidak Ada Server Terdeteksi",
+      "message": "Pemindaian selesai tapi tidak ada server yang ditemukan."
+    }
+  },
+  "unsafe" : {
+    "title": "Port Tidak Aman",
+    "message": "Anda Berusaha Mencari server menggunakan port yang tidak diperbolehkan oleh sistem",
+    "sub-message": "Silakan scan dengan port berbeda dan jalankan kembali aplikasi ini."
+  }
+}

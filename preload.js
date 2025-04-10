@@ -1,5 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
+
+
 contextBridge.exposeInMainWorld('electronAPI', {
   onServerFound: (callback) => ipcRenderer.on('server-found', callback),
   onListFound: (callback) => ipcRenderer.on('list-found', (_event, data) => callback(data)),
@@ -9,5 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   cancelCustomPort: () => ipcRenderer.send('cancel-custom-port'),
   openSettings: () => ipcRenderer.send('open-settings'),
   loadSettings: () => ipcRenderer.invoke('load-settings'),
-  saveSettings: (settings) => ipcRenderer.send('save-settings', settings)
+  saveSettings: (settings) => ipcRenderer.send('save-settings', settings),
+  t: (key) => ipcRenderer.invoke('translate', key),
 });
+

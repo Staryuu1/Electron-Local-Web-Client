@@ -17,10 +17,12 @@
 - 💻 Build untuk Windows, Linux, dan MacOS (via GitHub Actions)
 - ⚙️ Pengaturan untuk kustomisasi pemindaian
 - 🖌️ Kustomisasi Theme (Dark/Light)
+- 🇮🇩/🇺🇸 language support (curently in dark mode only)
 ---
 
 ## Todo
-- [ ] Multipe Langguage support (english/indonesia)
+- [x] Multipe Langguage support (english/indonesia)
+- [] add language support in light mode 
 
 
 ## 📦 Cara Install & Jalankan
